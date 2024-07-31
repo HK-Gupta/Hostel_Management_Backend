@@ -15,8 +15,8 @@ const getStudents = asyncHandler(async (req, res)=> {
 //@route POST /api/students
 //@access public
 const createStudent = asyncHandler(async (req, res)=> {
-    const {userName, firstName, lastName, phoneNo, email, password, blockNo, roomNo} = req.body;
-    if(!userName || !firstName || !lastName || !phoneNo ||
+    const {authority, userName, firstName, lastName, phoneNo, email, password, blockNo, roomNo} = req.body;
+    if(!authority || !userName || !firstName || !lastName || !phoneNo ||
        !email || !password || !blockNo || !roomNo) {
         res.status(400);
         throw new Error("All Fields are mandatory!");
@@ -30,7 +30,7 @@ const createStudent = asyncHandler(async (req, res)=> {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const students = await Students.create({
-        userName, firstName, lastName, phoneNo,
+        authority, userName, firstName, lastName, phoneNo,
         email, password: hashPassword, blockNo, roomNo
     })
     res.status(201).json(students);

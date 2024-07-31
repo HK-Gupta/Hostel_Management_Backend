@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
  
 const staffSchema = mongoose.Schema({
+    authority: {
+        type: String,
+        required: [true, "Please add th authority"]
+    },
     userName: {
         type: String,
         required: [true, "Please add the user name"],

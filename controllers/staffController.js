@@ -14,9 +14,9 @@ const getStaffs = asyncHandler(async (req, res)=> {
 //@route POST /api/staffs
 //@access public
 const createStaff = asyncHandler(async (req, res)=> {
-    const {userName, firstName, lastName, jobRole, phoneNo, email, password} = req.body;
+    const {authority, userName, firstName, lastName, jobRole, phoneNo, email, password} = req.body;
     if(!userName || !firstName || !lastName || !phoneNo ||
-       !email || !password || !jobRole) {
+       !authority || !email || !password || !jobRole) {
         res.status(400);
         throw new Error("All Fields are mandatory!");
     }
@@ -26,8 +26,8 @@ const createStaff = asyncHandler(async (req, res)=> {
         throw new Error("Email aldready Exists!");
     }
     const staffs = await Staffs.create({
-        userName, firstName, lastName, jobRole,
-        phoneNo, email, password
+        authority, userName, firstName, lastName, 
+        jobRole, phoneNo, email, password
     })
     res.status(201).json(staffs);
 });

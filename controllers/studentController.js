@@ -49,16 +49,7 @@ const loginStudent = asyncHandler(async (req, res)=> {
     const user = await Students.findOne({email});
     // Comparing password with the hashed password.
     if(user && (await bcrypt.compare(password, user.password))) {
-        const accessToken = jwt.sign({
-            user: {
-                userName: user.userName,
-                email: user.email,
-                id: user.id
-            }
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "10m" });
-        res.status(200).json({accessToken});
+        res.status(200).json(user);
     } else {
         res.status(401);
         throw new Error("Email or Password is not valid");

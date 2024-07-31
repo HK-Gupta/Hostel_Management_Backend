@@ -20,6 +20,11 @@ const createStaff = asyncHandler(async (req, res)=> {
         res.status(400);
         throw new Error("All Fields are mandatory!");
     }
+    const available = await Staffs.findOne({email});
+    if(available) {
+        res.status(400);
+        throw new Error("Email aldready Exists!");
+    }
     const staffs = await Staffs.create({
         userName, firstName, lastName, jobRole,
         phoneNo, email, password

@@ -30,11 +30,11 @@ const studentSchema = mongoose.Schema({
         type: String,
         required: [true, "Please add the pasword"],
     },
-    blockNo: {
+    blockNumber: {
         type: String,
         required: [true, "Please select the block no."],
     },
-    roomNo: {
+    roomNumber: {
         type: String,
         required: [true, "Please select the room no."],
     }

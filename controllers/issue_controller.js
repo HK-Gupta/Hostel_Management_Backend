@@ -14,14 +14,14 @@ const getIssues = asyncHandler(async (req, res)=> {
 //@route POST /api/issues
 //@access public
 const createIssue = asyncHandler(async (req, res)=> {
-    const {roomNumber, blockNumber, email, phoneNo, issue, comment} = req.body;
-    if(!roomNumber || !blockNumber || !phoneNo ||
-       !email || !issue || !comment) {
+    const {roomNumber, blockNumber, userName, firstName, lastName, email, phoneNo, issue, comment} = req.body;
+    if(!roomNumber || !blockNumber || !phoneNo || !userName ||
+       !firstName || !lastName || !email || !issue || !comment) {
         res.status(400);
         throw new Error("All Fields are mandatory!");
     }
     const issues = await Issue.create({
-        roomNumber, blockNumber, email, phoneNo, issue, comment
+        roomNumber, blockNumber, userName, firstName, lastName, email, phoneNo, issue, comment
     })
     res.status(201).json(issues);
 });

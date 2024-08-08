@@ -16,7 +16,6 @@ router.route('/').get(getStudents).post(createStudent);
 router.route('/:id').put(updateStudent).delete(deleteStudent);
 
 router.route('/login').post(loginStudent);
-// router.route('/current').post(currentUser);\
 
 router.get("/current", validateToken, currentUser);
 

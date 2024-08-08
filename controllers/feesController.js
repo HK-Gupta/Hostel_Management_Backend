@@ -14,15 +14,15 @@ const getFees = asyncHandler(async (req, res) => {
 //@route GET /api/fees
 //@access public
 const createFees = asyncHandler(async (req, res) => {
-    const {maintenenceCharge, parkingCharge, roomWaterCharge, roomCharge} = req.body;
-    if(!maintenenceCharge || !parkingCharge ||
+    const {maintenanceCharge, parkingCharge, roomWaterCharge, roomCharge} = req.body;
+    if(!maintenanceCharge || !parkingCharge ||
         !roomWaterCharge || !roomCharge) {
         res.status(400);
         throw new Error("All Fields are mandatory!")
     }
 
     const fees = await Fees.create({
-        maintenenceCharge, parkingCharge, roomWaterCharge, roomCharge
+        maintenanceCharge, parkingCharge, roomWaterCharge, roomCharge
     });
 
     res.status(201).json(fees);

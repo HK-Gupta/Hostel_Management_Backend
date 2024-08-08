@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
  
 const feesSchema = mongoose.Schema({
-    maintenenceCharge: {
+    maintenanceCharge: {
         type: String,
         required: [true, "Please add the Maintenence Charge"],
     },

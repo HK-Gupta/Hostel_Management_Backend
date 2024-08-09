@@ -14,6 +14,7 @@ app.use("/api/staffs", require("./routes/staffRoutes"));
 app.use("/api/issues", require("./routes/issueRoutes"));
 app.use("/api/rooms", require("./routes/roomsRoutes"));
 app.use("/api/fees", require("./routes/feesRoutes"));
+app.use("/api/change_request", require("./routes/roomChangeRoute"));
 app.use(errorHandler);
 
 app.listen(port, ()=> {

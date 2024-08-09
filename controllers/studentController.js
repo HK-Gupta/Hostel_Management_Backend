@@ -96,6 +96,28 @@ const deleteStudent = asyncHandler(async (req, res)=> {
     res.status(200).json(student);
 });
 
+//@desc Search Student by Email
+//@route GET /api/students/search
+//@access public
+const searchStudentByEmail = asyncHandler(async (req, res) => {
+    const { email } = req.query;
+
+    if (!email) {
+        res.status(400);
+        throw new Error("Email query parameter is required");
+    }
+
+    const student = await Students.findOne({ email });
+
+    if (!student) {
+        res.status(404);
+        throw new Error("Student not found with the given email");
+    }
+
+    res.status(200).json(student);
+});
+
+
 module.exports = {
     getStudents,
     createStudent,
@@ -103,4 +125,5 @@ module.exports = {
     currentUser,
     updateStudent,
     deleteStudent,
+    searchStudentByEmail,
 };

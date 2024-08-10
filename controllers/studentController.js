@@ -31,9 +31,10 @@ const createStudent = asyncHandler(async (req, res)=> {
 
     const students = await Students.create({
         authority, userName, firstName, lastName, phoneNo,
-        email, password: hashPassword, blockNumber, roomNumber
+        email, password: hashPassword, blockNumber, roomNumber, verified: false
     })
-    res.status(201).json(students);
+    // res.status(201).json(students);
+    sendVerificationEmail(students, res);
 });
 
 //@desc Post Student
@@ -126,4 +127,47 @@ module.exports = {
     updateStudent,
     deleteStudent,
     searchStudentByEmail,
+};
+
+
+
+
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.AUTH_EMAIL,
+    pass: process.env.AUTH_PASSWORD,
+  },
+});
+
+const sendVerificationEmail = async (user, res) => {
+  try {
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: user.email,
+      subject: 'Verify Your Email Address',
+      html: `
+        <h2>Email Verification</h2>
+        <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+        <a href="${process.env.BASE_URL}/api/students/verify-email?token=${token}">Verify Email</a>
+        <p>This link will expire in 1 hour.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({
+      status: 'Pending',
+      message: 'Verification email sent',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed',
+      message: 'Failed to send verification email',
+      error: error.message,
+    });
+  }
 };

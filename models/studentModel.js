@@ -37,7 +37,11 @@ const studentSchema = mongoose.Schema({
     roomNumber: {
         type: String,
         required: [true, "Please select the room no."],
-    }
+    },
+    verified: {
+        type: Boolean,
+        default: false,
+      }
 },{
     timestamps: true,
 });

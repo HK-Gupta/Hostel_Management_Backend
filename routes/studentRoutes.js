@@ -22,4 +22,5 @@ router.get("/current", validateToken, currentUser);
 
 router.get('/search', searchStudentByEmail);
 
+
 module.exports = router;

@@ -30,7 +30,21 @@ const createChangeRequest = asyncHandler(async (req, res)=> {
     res.status(201).json(changeRoom);
 });
 
+//@desc Delete Request
+//@route DELETE /api/change_request/:id
+//@access public
+const deleteRequest = asyncHandler(async (req, res)=> {
+    const requests = await ChangeRoom.findById(req.params.id);
+    if(!requests) {
+        res.status(404);
+        throw new Error("Request not found")
+    }
+    await ChangeRoom.findByIdAndDelete(req.params.id);
+    res.status(200).json(requests);
+});
+
 module.exports = {
     createChangeRequest,
-    getRequest
+    getRequest,
+    deleteRequest
 };

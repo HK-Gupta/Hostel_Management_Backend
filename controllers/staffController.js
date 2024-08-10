@@ -32,7 +32,21 @@ const createStaff = asyncHandler(async (req, res)=> {
     res.status(201).json(staffs);
 });
 
+//@desc Delete Staff
+//@route DELETE /api/staffs/:id
+//@access public
+const deleteStaff = asyncHandler(async (req, res)=> {
+    const requests = await Staffs.findById(req.params.id);
+    if(!requests) {
+        res.status(404);
+        throw new Error("Staff not found")
+    }
+    await Staffs.findByIdAndDelete(req.params.id);
+    res.status(200).json(requests);
+});
+
 module.exports = {
     createStaff,
-    getStaffs
+    getStaffs,
+    deleteStaff
 };

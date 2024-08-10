@@ -4,7 +4,6 @@ const roomsSchema = mongoose.Schema({
     roomNumber: {
         type: String,
         required: [true, "Please add the room Number"],
-        unique: [true, "Room number aldready registered"]
     },
     roomCapacity: {
         type: String,

@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const changeRoomsSchema = mongoose.Schema({
     currentRoomNumber: {
         type: String,
-        required: [true, "Please add the room Number"],
-        unique: [true, "Room number aldready registered"]
+        required: [true, "Please add the room Number"]
     },
     changeRoomNumber: {
         type: String,

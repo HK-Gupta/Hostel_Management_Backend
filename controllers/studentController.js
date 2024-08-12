@@ -47,7 +47,7 @@ const createStudent = asyncHandler(async (req, res) => {
 
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999);
-    const otpExpiry = Date.now() + 60 * 60 * 1000; // OTP valid for 1 hour
+    const otpExpiry = Date.now() + 30 * 60 * 1000; // OTP valid for 30 minutes
 
     // Create the student record
     const student = await Students.create({

@@ -8,7 +8,8 @@ const {
     currentUser,
     updateStudent,
     deleteStudent,
-    searchStudentByEmail
+    searchStudentByEmail,
+    verifyOtp
 } = require("../controllers/studentController");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -21,6 +22,8 @@ router.route('/login').post(loginStudent);
 router.get("/current", validateToken, currentUser);
 
 router.get('/search', searchStudentByEmail);
+
+router.post('/verify-otp', verifyOtp);
 
 
 module.exports = router;

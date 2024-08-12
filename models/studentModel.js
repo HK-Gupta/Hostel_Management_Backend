@@ -41,7 +41,9 @@ const studentSchema = mongoose.Schema({
     verified: {
         type: Boolean,
         default: false,
-      }
+    },
+    otp: { type: String }, 
+    otpExpiry: { type: Date },
 },{
     timestamps: true,
 });

@@ -2,6 +2,18 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const Students = require("../models/studentModel");
 const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_SERVER,
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.AUTH_EMAIL,
+    pass: process.env.AUTH_PASSWORD,
+  }, 
+});
 
 //@desc Get all Students
 //@route GET /api/students
@@ -14,28 +26,40 @@ const getStudents = asyncHandler(async (req, res)=> {
 //@desc Create Students
 //@route POST /api/students
 //@access public
-const createStudent = asyncHandler(async (req, res)=> {
-    const {authority, userName, firstName, lastName, phoneNo, email, password, blockNumber, roomNumber} = req.body;
-    if(!authority || !userName || !firstName || !lastName || !phoneNo ||
-       !email || !password || !blockNumber || !roomNumber) {
+const createStudent = asyncHandler(async (req, res) => {
+    const { authority, userName, firstName, lastName, phoneNo, email, password, blockNumber, roomNumber } = req.body;
+    
+    // Validate input
+    if (!authority || !userName || !firstName || !lastName || !phoneNo || !email || !password || !blockNumber || !roomNumber) {
         res.status(400);
         throw new Error("All Fields are mandatory!");
     }
-    const available = await Students.findOne({email});
-    if(available) {
+
+    // Check if email already exists
+    const available = await Students.findOne({ email });
+    if (available) {
         res.status(400);
-        throw new Error("Email aldready Exists!");
+        throw new Error("Email already Exists!");
     }
 
+    // Hash the password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const students = await Students.create({
+    // Generate a 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999);
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+
+    // Create the student record
+    const student = await Students.create({
         authority, userName, firstName, lastName, phoneNo,
-        email, password: hashPassword, blockNumber, roomNumber, verified: false
-    })
-    // res.status(201).json(students);
-    sendVerificationEmail(students, res);
+        email, password: hashPassword, blockNumber, roomNumber,
+        verified: false, otp, otpExpiry
+    });
+
+    // Send OTP via email
+    sendOtpEmail(student, otp, res);
 });
+
 
 //@desc Post Student
 //@route POST /api/students/login
@@ -119,6 +143,70 @@ const searchStudentByEmail = asyncHandler(async (req, res) => {
 });
 
 
+const sendOtpEmail = async (user, otp, res) => {
+
+    try {
+        const mailOptions = {
+            from: process.env.AUTH_EMAIL,
+            to: user.email,
+            subject: 'Your Verification OTP',
+            html: `
+                <h2>Email Verification</h2>
+                <p>Your OTP for verifying your email is:</p>
+                <h3>${otp}</h3>
+                <p>This OTP will expire in 10 minutes.</p>
+            `,
+        };
+
+        console.log("Sending email with options:", mailOptions);
+
+        const response = await transporter.sendMail(mailOptions);
+        console.log("Email sent response:", response);
+
+        res.status(200).json({
+            status: 'Pending',
+            message: 'Verification OTP sent to your email',
+        });
+    } catch (error) {
+        console.error("Error sending email:", error.message);
+        res.status(500).json({
+            status: 'Failed',
+            message: 'Failed to send verification OTP',
+            error: error.message,
+        });
+    }
+};
+
+
+const verifyOtp = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+
+    const user = await Students.findOne({ email });
+
+    if (!user) {
+        res.status(400);
+        throw new Error("User not found");
+    }
+
+    // Check if OTP is valid
+    if (user.otp === otp && user.otpExpiry > Date.now()) {
+        // Mark user as verified
+        user.verified = true;
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save();
+
+        res.status(200).json({
+            status: 'Success',
+            message: 'Email verified successfully',
+        });
+    } else {
+        res.status(400);
+        throw new Error("Invalid or expired OTP");
+    }
+});
+
+
 module.exports = {
     getStudents,
     createStudent,
@@ -127,49 +215,5 @@ module.exports = {
     updateStudent,
     deleteStudent,
     searchStudentByEmail,
-};
-
-
-
-
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.AUTH_EMAIL,
-    pass: process.env.AUTH_PASSWORD,
-  }, 
-});
-
-const sendVerificationEmail = async (user, res) => {
-  try {
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    const mailOptions = {
-      from: process.env.AUTH_EMAIL,
-      to: user.email,
-      subject: 'Verify Your Email Address',
-      html: `
-        <h2>Email Verification</h2>
-        <p>Thank you for registering. Please verify your email by clicking the link below:</p>
-        <a href="${process.env.BASE_URL}/api/students/verify-email?token=${token}">Verify Email</a>
-        <p>This link will expire in 1 hour.</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({
-      status: 'Pending',
-      message: 'Verification email sent',
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'Failed',
-      message: 'Failed to send verification email',
-      error: error.message,
-    });
-  }
+    verifyOtp,
 };

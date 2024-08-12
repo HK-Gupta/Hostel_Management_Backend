@@ -46,8 +46,8 @@ const createStudent = asyncHandler(async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 10);
 
     // Generate a 6-digit OTP
-    const otp = crypto.randomInt(100000, 999999);
-    const otpExpiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+    const otp = crypto.randomInt(1000, 9999);
+    const otpExpiry = Date.now() + 60 * 60 * 1000; // OTP valid for 1 hour
 
     // Create the student record
     const student = await Students.create({
@@ -177,7 +177,9 @@ const sendOtpEmail = async (user, otp, res) => {
     }
 };
 
-
+//@desc Post Student
+//@route POST /api/students/verify-otp
+//@access private
 const verifyOtp = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
 

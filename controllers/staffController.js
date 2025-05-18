@@ -25,9 +25,10 @@ const createStaff = asyncHandler(async (req, res)=> {
         res.status(400);
         throw new Error("Email aldready Exists!");
     }
+    const hashPassword = await bcrypt.hash(password, 10);
     const staffs = await Staffs.create({
         authority, userName, firstName, lastName, 
-        jobRole, phoneNo, email, password
+        jobRole, phoneNo, email, hashPassword
     })
     res.status(201).json(staffs);
 });
